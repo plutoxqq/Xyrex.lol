@@ -12,7 +12,7 @@
     <div class="nav-inner">
       <div class="brand">ProductVault</div>
 
-      <!-- Centered search. JavaScript will wire this up. -->
+      <!-- Fixed top search: always visible while sidebar/content scroll independently -->
       <div class="search-wrap">
         <input id="searchInput" class="search-input" type="search" placeholder="Search products..." aria-label="Search products" />
         <button id="clearSearchBtn" class="btn-ghost" title="Clear search">✕</button>
@@ -66,25 +66,11 @@
         <!-- PRICE FILTER -->
         <section class="filter-group">
           <h3 class="filter-title">Price</h3>
-
-          <!-- Note: values are numeric and come from product.priceValue. Lifetime products have priceValue = null -->
           <div class="price-controls">
-            <label class="small">Max price: <span id="priceMaxLabel">$100</span></label>
-            <input id="priceRange" type="range" min="0" max="100" value="100" />
-            <div class="price-quick">
-              <select id="priceDropdown">
-                <option value="all">All prices</option>
-                <option value="lt5">&lt; $5</option>
-                <option value="lt10">&lt; $10</option>
-                <option value="lt20">&lt; $20</option>
-                <option value="20plus">$20+</option>
-                <option value="lifetime">Show only Lifetime</option>
-              </select>
-            </div>
-            <label><input id="includeLifetime" type="checkbox" /> Include Lifetime items</label>
+            <label><input id="priceFree" type="checkbox" class="price-checkbox" value="free" /> Free</label>
+            <label><input id="pricePaid" type="checkbox" class="price-checkbox" value="paid" /> Paid</label>
           </div>
-
-          <!-- Comments: To change slider behavior, edit script.js where priceRange and priceDropdown are handled -->
+          <!-- To expand pricing categories later, add more .price-checkbox inputs (e.g. value="subscription") and update isPriceMatch() in script.js -->
         </section>
 
         <hr />
@@ -97,12 +83,12 @@
     <main class="main-content">
       <!-- LEGEND / KEY ABOVE PRODUCT LIST -->
       <div class="legend">
-        <div class="legend-item"><span class="badge verified"></span> Verified</div>
-        <div class="legend-item"><span class="badge warning"></span> Warning</div>
-        <div class="legend-item"><span class="badge trending"></span> Trending</div>
-        <div class="legend-item"><span class="tag internal">Internal</span> Internal / Executor</div>
-        <div class="legend-item"><span class="tag external">External</span> External</div>
-        <div class="legend-item"><span class="score-bubble">sUNC</span> sUNC score indicates community confidence (higher = better)</div>
+        <!-- To add legend items: duplicate one .legend-item with icon + short label -->
+        <div class="legend-item"><span class="legend-icon verified">✓</span><span>Verified</span></div>
+        <div class="legend-item"><span class="legend-icon warning">!</span><span>Warning</span></div>
+        <div class="legend-item"><span class="legend-icon trending">↗</span><span>Trending</span></div>
+        <div class="legend-item"><span class="legend-icon io">⇄</span><span>Internal / External</span></div>
+        <div class="legend-item"><span class="legend-icon sunc">S</span><span>sUNC = confidence score</span></div>
       </div>
 
       <!-- Product grid -->
