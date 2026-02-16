@@ -160,7 +160,7 @@ a { color: inherit; text-decoration: none; }
 /* Cleaner legend bar with equal spacing and subtle card feel */
 .legend{
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 14px;
   padding: 10px;
@@ -197,8 +197,9 @@ a { color: inherit; text-decoration: none; }
 .legend-icon.verified{ background: rgba(93,211,158,.2); color: var(--accent-success); }
 .legend-icon.warning{ background: rgba(248,196,107,.2); color: var(--accent-warning); }
 .legend-icon.trending,
-.legend-icon.io,
 .legend-icon.sunc{ background: rgba(143,156,255,.2); color: var(--periwinkle-2); }
+.legend-icon.internal{ background: rgba(104, 197, 255, .2); color: #8ed6ff; }
+.legend-icon.external{ background: rgba(255, 166, 118, .2); color: #ffb583; }
 
 .product-grid{
   display: grid;
@@ -209,6 +210,7 @@ a { color: inherit; text-decoration: none; }
 }
 
 .card{
+  position: relative;
   display: flex;
   flex-direction: column;
   min-height: 260px;
@@ -235,7 +237,19 @@ a { color: inherit; text-decoration: none; }
 }
 
 .card-header{ display: flex; align-items: start; justify-content: space-between; gap: 10px; }
+.card-header-left{ display:flex; flex-direction:column; gap:7px; }
 .card-header-right{ display: flex; align-items: center; gap: 8px; }
+.card.featured-card::before{
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #ffd84d 0%, #ff5ea8 50%, #ff8a3d 100%);
+  box-shadow: 0 0 10px rgba(255, 142, 61, 0.35);
+  z-index: 1;
+}
 .product-name{ font-size: 1.02rem; font-weight: 800; }
 .sunc{ background: rgba(143,156,255,.16); color: var(--periwinkle-2); border-radius: 999px; padding: 5px 9px; font-size: .78rem; font-weight: 700; }
 .tag-symbols{ display:flex; gap:6px; }

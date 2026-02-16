@@ -14,6 +14,7 @@
 const products = [
   {
     name: "Aether Decompiler",
+    featured: true,
     platform: ["Windows", "macOS"],
     cheatType: "Internal",
     keySystem: "Keyless",
@@ -31,6 +32,7 @@ const products = [
   },
   {
     name: "KernelForge",
+    featured: false,
     platform: ["Windows"],
     cheatType: "External",
     keySystem: "Keyed",
@@ -48,6 +50,7 @@ const products = [
   },
   {
     name: "Nebula AI Runner",
+    featured: false,
     platform: ["Android", "iOS"],
     cheatType: "External",
     keySystem: "Keyless",
@@ -65,6 +68,7 @@ const products = [
   },
   {
     name: "MiniCore",
+    featured: false,
     platform: ["Windows", "Android"],
     cheatType: "Internal",
     keySystem: "Keyless",
@@ -82,6 +86,7 @@ const products = [
   },
   {
     name: "Sigma Suite",
+    featured: false,
     platform: ["macOS"],
     cheatType: "External",
     keySystem: "Keyed",
@@ -99,6 +104,7 @@ const products = [
   },
  {
     name: "Pluton",
+    featured: true,
     platform: ["Windows", "Android"],
     cheatType: "Internal",
     keySystem: "Keyless",
@@ -129,8 +135,8 @@ const tagSymbolMap = {
   Verified: { symbol: '✓', cls: 'verified' },
   Warning: { symbol: '!', cls: 'warning' },
   Trending: { symbol: '↗', cls: 'trending' },
-  Internal: { symbol: '⇄', cls: 'io' },
-  External: { symbol: '⇄', cls: 'io' }
+  Internal: { symbol: 'I', cls: 'internal' },
+  External: { symbol: 'E', cls: 'external' }
 };
 
 function createTagSymbols(product) {
@@ -176,6 +182,7 @@ function createPlatformChips(platforms) {
 function createProductCard(product, index) {
   const card = document.createElement('article');
   card.className = 'card';
+  if (product.featured) card.classList.add('featured-card');
   card.setAttribute('data-index', index);
 
   const body = document.createElement('div');
@@ -185,6 +192,8 @@ function createProductCard(product, index) {
   header.className = 'card-header';
 
   const left = document.createElement('div');
+  left.className = 'card-header-left';
+
   const name = document.createElement('div');
   name.className = 'product-name';
   name.textContent = product.name;
@@ -229,16 +238,21 @@ function createProductCard(product, index) {
   return card;
 }
 
+function sortFeaturedFirst(list) {
+  return [...list].sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)));
+}
+
 function renderProducts(list) {
   const grid = qs('#productGrid');
+  const orderedProducts = sortFeaturedFirst(list);
   grid.innerHTML = '';
-  if (list.length === 0) {
+  if (orderedProducts.length === 0) {
     qs('#noResults').hidden = false;
     return;
   }
   qs('#noResults').hidden = true;
 
-  list.forEach((p, i) => grid.appendChild(createProductCard(p, i)));
+  orderedProducts.forEach((p, i) => grid.appendChild(createProductCard(p, i)));
 }
 
 function getActiveFilters() {
