@@ -101,7 +101,7 @@ const products = [
     stability: "Unstable",
     trustLevel: "Low",
     status: "Discontinued"
-  }
+  },
  {
     name: "Pluton",
     platform: ["Windows", "Android"],
@@ -111,7 +111,7 @@ const products = [
     features: [],
     sunc: 100,
     description: "Pluton Executor is a next-gen Roblox executor built for raw performance and stealth, featuring a custom Lua VM, instant injection, and adaptive hot-patching to stay resilient against modern anti-cheat updates.",
-    pros: ["High sUNC", "AntiCheat Bypass", "Instant Injection", "High stability],
+    pros: ["High sUNC", "AntiCheat Bypass", "Instant Injection", "High stability"],
     cons: ["Can conflict with antivirus software", "Setup complexity is higher than average"],
     pricingOptions: ["1 Day — $0.99", "3 Days — $1.99", "1 Week — $4.99", "1 Month — $13.99"],
     priceValue: 4.99,
