@@ -191,20 +191,6 @@ function createProductCard(product, index) {
   header.appendChild(left);
   header.appendChild(right);
 
-  const featuresRow = document.createElement('div');
-  featuresRow.className = 'features-row';
-
-  product.features.forEach(f => {
-    const ic = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    ic.setAttribute('class', 'feature-icon');
-    ic.setAttribute('viewBox', '0 0 24 24');
-    const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-    use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', featureIconMap[f] || '#icon-info');
-    ic.appendChild(use);
-    ic.title = f;
-    featuresRow.appendChild(ic);
-  });
-
   const platformChips = createPlatformChips(product.platform);
 
   const summary = document.createElement('p');
@@ -216,7 +202,6 @@ function createProductCard(product, index) {
   price.textContent = (product.pricingOptions && product.pricingOptions[0]) || '—';
 
   body.appendChild(header);
-  body.appendChild(featuresRow);
   body.appendChild(platformChips);
   body.appendChild(summary);
   body.appendChild(price);
