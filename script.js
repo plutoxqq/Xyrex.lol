@@ -8,7 +8,7 @@
    ================================
    To add a product:
     - Copy one object in the array and update fields.
-    - Keep priceValue numeric for paid products and null for free/lifetime.
+    - Set freeOrPaid to "paid" or "free".
     - tags controls legend-style state symbols used on each card.
 */
 const products = [
@@ -24,8 +24,7 @@ const products = [
     pros: ["Fast startup and analysis pipeline", "Extensible plugin architecture", "Strong multi-instance stability"],
     cons: ["Minor UI lag on first launch", "Heuristics can over-flag edge cases"],
     pricingOptions: ["1 Week — $5.99", "1 Month — $17.99", "Lifetime — $69.99"],
-    priceValue: 5.99,
-    durationDays: 7,
+    freeOrPaid: "paid",
     stability: "Very Stable",
     trustLevel: "High",
     status: "Undetected"
@@ -42,8 +41,7 @@ const products = [
     pros: ["Deep kernel integration", "Reliable fallback protections", "Strong control for advanced workflows"],
     cons: ["Driver signing workaround needed on some setups"],
     pricingOptions: ["1 Week — $8.99", "1 Month — $19.99", "Lifetime — $89.99"],
-    priceValue: 19.99,
-    durationDays: 30,
+    freeOrPaid: "paid",
     stability: "Stable",
     trustLevel: "High",
     status: "Updating"
@@ -60,8 +58,7 @@ const products = [
     pros: ["Great for large-batch automation", "AI-assisted detection workflows", "Cross-mobile platform support"],
     cons: ["Cloud synchronization can be region-dependent"],
     pricingOptions: ["1 Week — $4.99", "1 Month — $14.99", "Lifetime — $59.99"],
-    priceValue: null,
-    durationDays: null,
+    freeOrPaid: "free",
     stability: "Stable",
     trustLevel: "Medium",
     status: "Working"
@@ -78,8 +75,7 @@ const products = [
     pros: ["Low resource usage", "Fast spin-up for multi-instance runs"],
     cons: ["Reduced compatibility on older GPUs"],
     pricingOptions: ["1 Week — $3.99", "1 Month — $10.99", "Lifetime — $39.99"],
-    priceValue: 3.99,
-    durationDays: 3,
+    freeOrPaid: "paid",
     stability: "Moderate",
     trustLevel: "Medium",
     status: "Detected"
@@ -96,8 +92,7 @@ const products = [
     pros: ["Broad utility set", "Flexible configuration options"],
     cons: ["Can conflict with antivirus software", "Setup complexity is higher than average"],
     pricingOptions: ["1 Week — $6.99", "1 Month — $12.00", "Lifetime — $49.99"],
-    priceValue: 12.0,
-    durationDays: 14,
+    freeOrPaid: "paid",
     stability: "Unstable",
     trustLevel: "Low",
     status: "Discontinued"
@@ -114,8 +109,7 @@ const products = [
     pros: ["High sUNC", "AntiCheat Bypass", "Instant Injection", "High stability"],
     cons: ["Can conflict with antivirus software", "Setup complexity is higher than average"],
     pricingOptions: ["1 Day — $0.99", "3 Days — $1.99", "1 Week — $4.99", "1 Month — $13.99"],
-    priceValue: 4.99,
-    durationDays: 7,
+    freeOrPaid: "paid",
     stability: "Stable",
     trustLevel: "High",
     status: "Undetected"
@@ -267,7 +261,7 @@ function getPriceControls() {
 }
 
 function isPriceMatch(prod, priceControls) {
-  const isFree = prod.priceValue === null || prod.priceValue === 0;
+  const isFree = prod.freeOrPaid === 'free';
 
   // Free + Paid unchecked means no price restriction.
   if (!priceControls.free && !priceControls.paid) return true;
@@ -340,7 +334,6 @@ function openModal(product) {
 
         <div class="modal-section">
           <strong>Compatibility</strong>
-          <p class="small">Cheat Type: ${escapeHtml(product.cheatType)} • Key System: ${escapeHtml(product.keySystem)} • sUNC ${escapeHtml(product.sunc)}%</p>
         </div>
 
         <div class="modal-section">
