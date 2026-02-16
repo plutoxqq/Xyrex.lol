@@ -333,10 +333,6 @@ function openModal(product) {
         </div>
 
         <div class="modal-section">
-          <strong>Compatibility</strong>
-        </div>
-
-        <div class="modal-section">
           <strong>Platform</strong>
           <div class="platform-chips">${product.platform.map(platform => `<span class="platform-chip"><span class="platform-logo">${platformIconMap[platform] || '•'}</span><span>${escapeHtml(platform)}</span></span>`).join('')}</div>
         </div>
