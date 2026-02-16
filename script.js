@@ -238,16 +238,21 @@ function createProductCard(product, index) {
   return card;
 }
 
+function sortFeaturedFirst(list) {
+  return [...list].sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)));
+}
+
 function renderProducts(list) {
   const grid = qs('#productGrid');
+  const orderedProducts = sortFeaturedFirst(list);
   grid.innerHTML = '';
-  if (list.length === 0) {
+  if (orderedProducts.length === 0) {
     qs('#noResults').hidden = false;
     return;
   }
   qs('#noResults').hidden = true;
 
-  list.forEach((p, i) => grid.appendChild(createProductCard(p, i)));
+  orderedProducts.forEach((p, i) => grid.appendChild(createProductCard(p, i)));
 }
 
 function getActiveFilters() {
