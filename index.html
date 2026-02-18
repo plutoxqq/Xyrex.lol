@@ -16,6 +16,20 @@
       <div class="search-wrap">
         <input id="searchInput" class="search-input" type="search" placeholder="Search products..." aria-label="Search products" />
         <button id="clearSearchBtn" class="btn-ghost" title="Clear search">✕</button>
+        <button id="themeToggleBtn" class="btn-ghost theme-toggle-btn" title="Customize theme" aria-label="Customize theme">🖌️</button>
+        <div id="themePanel" class="theme-panel" hidden>
+          <p class="theme-panel-title">Theme Colour</p>
+          <div class="theme-presets" role="group" aria-label="Preset colours">
+            <button class="theme-swatch" type="button" data-theme-color="#8f9cff" style="--swatch:#8f9cff;" aria-label="Periwinkle"></button>
+            <button class="theme-swatch" type="button" data-theme-color="#a88ffb" style="--swatch:#a88ffb;" aria-label="Lavender"></button>
+            <button class="theme-swatch" type="button" data-theme-color="#6fc4c8" style="--swatch:#6fc4c8;" aria-label="Pastel teal"></button>
+            <button class="theme-swatch" type="button" data-theme-color="#f5a6bf" style="--swatch:#f5a6bf;" aria-label="Pastel pink"></button>
+            <button class="theme-swatch" type="button" data-theme-color="#f2b68f" style="--swatch:#f2b68f;" aria-label="Peach"></button>
+          </div>
+          <label class="theme-custom-label" for="customThemeColor">Custom RGB / HEX</label>
+          <input id="customThemeColor" class="theme-custom-input" type="text" placeholder="rgb(120,150,255) or #7896ff" />
+          <button id="applyCustomThemeBtn" class="btn-primary theme-apply-btn" type="button">Apply</button>
+        </div>
       </div>
 
       <div class="nav-spacer"></div>
@@ -74,6 +88,7 @@
           <div class="price-controls">
             <label><input id="priceFree" type="checkbox" class="price-checkbox" value="free" /> Free</label>
             <label><input id="pricePaid" type="checkbox" class="price-checkbox" value="paid" /> Paid</label>
+            <label><input id="priceBoth" type="checkbox" class="price-checkbox" value="both" /> Free + Paid</label>
           </div>
           <!-- To expand pricing categories later, add more .price-checkbox inputs (e.g. value="subscription") and update isPriceMatch() in script.js -->
         </section>
@@ -111,7 +126,6 @@
       <section id="scriptsPage" class="app-page" data-page="scripts" hidden>
         <header class="subpage-header">
           <h2>Scripts Hub</h2>
-          <p>Use these tabs to manage tier lists, browse scripts, and keep your own saved snippets.</p>
         </header>
 
         <div class="subtabs" role="tablist" aria-label="Scripts hub tabs">
@@ -124,25 +138,21 @@
 
         <section id="tierPaidPanel" class="subtab-panel" role="tabpanel">
           <h3>Paid Executor Tier List</h3>
-          <p class="panel-note">Edit the <code>scriptsHubData.tierListPaid</code> array in <code>script.js</code> to change rankings and notes.</p>
           <div id="tierPaidList" class="rank-list"></div>
         </section>
 
         <section id="tierFreePanel" class="subtab-panel" role="tabpanel" hidden>
           <h3>Free Executor Tier List</h3>
-          <p class="panel-note">Edit the <code>scriptsHubData.tierListFree</code> array in <code>script.js</code> to change rankings and notes.</p>
           <div id="tierFreeList" class="rank-list"></div>
         </section>
 
         <section id="popularScriptsPanel" class="subtab-panel" role="tabpanel" hidden>
           <h3>Popular Scripts</h3>
-          <p class="panel-note">Edit the <code>scriptsHubData.popularScripts</code> array in <code>script.js</code> to add/remove script cards.</p>
           <div id="popularScriptsList" class="script-list"></div>
         </section>
 
         <section id="savedScriptsPanel" class="subtab-panel" role="tabpanel" hidden>
           <h3>Saved Scripts</h3>
-          <p class="panel-note">Paste script text below, then click Save Script to store it in your browser.</p>
           <label class="input-label" for="savedScriptName">Script title</label>
           <input id="savedScriptName" class="script-input" type="text" placeholder="Example: Auto Farm v2" />
 
@@ -151,6 +161,7 @@
 
           <div class="saved-script-actions">
             <button id="saveScriptBtn" class="btn-primary" type="button">Save Script</button>
+            <button id="deleteScriptBtn" class="btn-danger" type="button">Delete</button>
           </div>
 
           <div id="savedScriptsList" class="saved-script-list"></div>

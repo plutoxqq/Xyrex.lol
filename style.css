@@ -76,7 +76,7 @@ a { color: inherit; text-decoration: none; }
 
 .search-input{
   width: 100%;
-  padding: 11px 42px 11px 16px;
+  padding: 11px 86px 11px 16px;
   border-radius: 999px;
   border: 1px solid rgba(178,188,255,0.3);
   background: rgba(20, 26, 48, 0.9);
@@ -90,9 +90,21 @@ a { color: inherit; text-decoration: none; }
   box-shadow: 0 0 0 3px rgba(143,156,255,0.2);
 }
 
+.search-input::-webkit-search-cancel-button,
+.search-input::-webkit-search-decoration,
+.search-input::-webkit-search-results-button,
+.search-input::-webkit-search-results-decoration{
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.search-input[type='search']{
+  appearance: textfield;
+}
+
 .btn-ghost{
   position: absolute;
-  right: 8px;
+  right: 44px;
   border: 0;
   background: transparent;
   color: var(--muted);
@@ -100,6 +112,67 @@ a { color: inherit; text-decoration: none; }
   cursor: pointer;
   padding: 6px;
   border-radius: 8px;
+}
+
+
+.theme-toggle-btn{
+  right: 10px;
+  font-size: 1rem;
+}
+
+.theme-panel{
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 248px;
+  border-radius: 12px;
+  border: 1px solid rgba(178,188,255,0.25);
+  background: rgba(11, 15, 30, 0.97);
+  padding: 12px;
+  box-shadow: var(--soft-shadow);
+  z-index: 120;
+}
+
+.theme-panel-title{
+  margin: 0 0 8px;
+  font-weight: 700;
+}
+
+.theme-presets{
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.theme-swatch{
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,0.35);
+  background: var(--swatch);
+  cursor: pointer;
+}
+
+.theme-custom-label{
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: .82rem;
+}
+
+.theme-custom-input{
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid rgba(178,188,255,0.25);
+  background: rgba(14,18,35,.9);
+  color: var(--text);
+  padding: 8px;
+}
+
+.theme-apply-btn{
+  margin-top: 8px;
+  width: 100%;
 }
 
 .page-layout{
@@ -670,7 +743,17 @@ a { color: inherit; text-decoration: none; }
 }
 
 .script-textarea{ min-height: 220px; resize: vertical; }
-.saved-script-actions{ margin-top:10px; display:flex; justify-content:flex-end; }
+.saved-script-actions{ margin-top:10px; display:flex; justify-content:flex-end; gap:8px; }
+
+.btn-danger{
+  background: rgba(255, 110, 143, 0.2);
+  color: #ffd7e1;
+  border: 1px solid rgba(255, 141, 169, 0.45);
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+}
 
 .saved-script-item{
   display:flex;

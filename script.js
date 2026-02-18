@@ -302,7 +302,8 @@ function getActiveFilters() {
 function getPriceControls() {
   return {
     free: qs('#priceFree').checked,
-    paid: qs('#pricePaid').checked
+    paid: qs('#pricePaid').checked,
+    both: qs('#priceBoth').checked
   };
 }
 
@@ -310,12 +311,16 @@ function isPriceMatch(prod, priceControls) {
   const costDisplay = (prod.costDisplay || 'paid').toLowerCase();
   const isFree = costDisplay === 'free' || costDisplay === 'both';
   const isPaid = costDisplay === 'paid' || costDisplay === 'both';
+  const isBoth = costDisplay === 'both';
 
-  // Free + Paid unchecked means no price restriction.
-  if (!priceControls.free && !priceControls.paid) return true;
-  if (priceControls.free && isFree) return true;
-  if (priceControls.paid && isPaid) return true;
-  return false;
+  // No price checkboxes selected means no restriction.
+  if (!priceControls.free && !priceControls.paid && !priceControls.both) return true;
+
+  let matches = false;
+  if (priceControls.free && isFree) matches = true;
+  if (priceControls.paid && isPaid) matches = true;
+  if (priceControls.both && isBoth) matches = true;
+  return matches;
 }
 
 function formatCostDisplay(costDisplay) {
@@ -514,14 +519,14 @@ function saveScriptFromEditor() {
   const trimmedTitle = nameInput.value.trim();
   const body = bodyInput.value;
 
-  if (!trimmedTitle && !body.trim()) {
+  if (!trimmedTitle || !body.trim()) {
     return;
   }
 
   const items = getSavedScripts();
   const scriptToPersist = {
     id: `script_${Date.now()}`,
-    title: trimmedTitle || 'Untitled script',
+    title: trimmedTitle,
     body,
     updatedAt: Date.now()
   };
@@ -541,6 +546,71 @@ function saveScriptFromEditor() {
   clearSavedScriptEditor();
   renderSavedScriptsList();
   nameInput.focus();
+}
+
+
+function deleteSelectedScript() {
+  if (!currentSavedScriptId) return;
+
+  const items = getSavedScripts();
+  const nextItems = items.filter(item => item.id !== currentSavedScriptId);
+  writeSavedScripts(nextItems);
+
+  currentSavedScriptId = null;
+  clearSavedScriptEditor();
+  renderSavedScriptsList();
+}
+
+function applyThemeColour(rawValue) {
+  const probe = document.createElement('span');
+  probe.style.color = '';
+  probe.style.color = rawValue;
+  if (!probe.style.color) return false;
+
+  const cssColor = probe.style.color;
+  document.documentElement.style.setProperty('--periwinkle', cssColor);
+  document.documentElement.style.setProperty('--periwinkle-2', cssColor);
+  localStorage.setItem('voxlis_theme_color', cssColor);
+  return true;
+}
+
+function initThemeControls() {
+  const panel = qs('#themePanel');
+  const toggleBtn = qs('#themeToggleBtn');
+  const customInput = qs('#customThemeColor');
+  if (!panel || !toggleBtn || !customInput) return;
+
+  const savedColor = localStorage.getItem('voxlis_theme_color');
+  if (savedColor) applyThemeColour(savedColor);
+
+  toggleBtn.addEventListener('click', (event) => {
+    event.stopPropagation();
+    panel.hidden = !panel.hidden;
+  });
+
+  panel.addEventListener('click', event => event.stopPropagation());
+
+  qsa('.theme-swatch').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const value = btn.getAttribute('data-theme-color');
+      if (!value) return;
+      applyThemeColour(value);
+      panel.hidden = true;
+    });
+  });
+
+  qs('#applyCustomThemeBtn').addEventListener('click', () => {
+    const value = customInput.value.trim();
+    if (!value) return;
+    const isValid = applyThemeColour(value);
+    if (!isValid) return;
+    customInput.value = '';
+    panel.hidden = true;
+  });
+
+  document.addEventListener('click', () => {
+    panel.hidden = true;
+  });
 }
 
 function setActivePage(targetPageId) {
@@ -600,25 +670,43 @@ function initScriptsHub() {
   });
 
   qs('#saveScriptBtn').addEventListener('click', saveScriptFromEditor);
+  qs('#deleteScriptBtn').addEventListener('click', deleteSelectedScript);
 }
 
 function init() {
   renderProducts(products);
   initScriptsHub();
 
-  qs('#searchInput').addEventListener('input', applyAllFilters);
-  qs('#clearSearchBtn').addEventListener('click', () => {
-    qs('#searchInput').value = '';
+  const searchInput = qs('#searchInput');
+  const clearSearchBtn = qs('#clearSearchBtn');
+
+  const syncClearButton = () => {
+    clearSearchBtn.hidden = !searchInput.value.trim();
+  };
+
+  searchInput.addEventListener('input', () => {
+    syncClearButton();
     applyAllFilters();
   });
 
+  clearSearchBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    syncClearButton();
+    applyAllFilters();
+  });
+
+  syncClearButton();
+
   qsa('.filter-checkbox').forEach(cb => cb.addEventListener('change', applyAllFilters));
   qsa('.price-checkbox').forEach(cb => cb.addEventListener('change', applyAllFilters));
+
+  initThemeControls();
 
   qs('#resetFilters').addEventListener('click', () => {
     qsa('.filter-checkbox').forEach(cb => (cb.checked = false));
     qsa('.price-checkbox').forEach(cb => (cb.checked = false));
     qs('#searchInput').value = '';
+    qs('#clearSearchBtn').hidden = true;
     applyAllFilters();
   });
 
