@@ -362,15 +362,113 @@ a { color: inherit; text-decoration: none; }
 }
 
 @media (max-width: 720px){
+  html,
+  body{
+    height: auto;
+    min-height: 100%;
+    overflow: auto;
+  }
+
+  .topnav .nav-inner{
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  .brand{
+    font-size: .95rem;
+  }
+
+  .search-wrap{
+    order: 3;
+    flex: 1 0 100%;
+    max-width: none;
+  }
+
+  .search-input{
+    font-size: 16px;
+  }
+
+  .nav-spacer{
+    display: none;
+  }
+
   .modal-layout{ grid-template-columns: 1fr; }
   .status-panel{ order: -1; }
+
   .page-layout{
     grid-template-columns: 1fr;
-    height: calc(100vh - 68px);
-    gap: 14px;
+    margin-top: 112px;
+    min-height: calc(100dvh - 112px);
+    height: auto;
+    padding: 12px;
+    gap: 12px;
   }
+
+  .sidebar,
+  .main-content{
+    padding: 12px;
+  }
+
+  .sidebar{
+    max-height: 34dvh;
+  }
+
+  .legend{
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .legend-item{
+    min-height: 34px;
+    font-size: .8rem;
+    gap: 6px;
+  }
+
   .product-grid{
     /* Mobile wrap: one card per row for readability */
     grid-template-columns: 1fr;
+  }
+
+  .card-body{
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .info-btn{
+    min-height: 40px;
+  }
+}
+
+@media (max-width: 900px) and (orientation: landscape){
+  .page-layout{
+    margin-top: 68px;
+    min-height: calc(100dvh - 68px);
+    grid-template-columns: minmax(220px, 30%) 1fr;
+    gap: 10px;
+  }
+
+  .sidebar{
+    max-height: none;
+  }
+
+  .legend{
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) and (orientation: landscape){
+  .topnav .nav-inner{
+    flex-wrap: nowrap;
+    gap: .75rem;
+  }
+
+  .search-wrap{
+    order: 0;
+    flex: 1;
+  }
+
+  .brand{
+    white-space: nowrap;
   }
 }
