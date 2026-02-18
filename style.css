@@ -143,7 +143,37 @@ a { color: inherit; text-decoration: none; }
 .filter-group{ margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px dashed rgba(178,188,255,0.16); }
 .filter-title{ margin: 6px 0 8px; font-size: .95rem; }
 .filter-group label{ display: block; margin: 6px 0; color: var(--muted); }
-.filter-checkbox, .price-checkbox{ margin-right: 8px; accent-color: var(--periwinkle); }
+.filter-checkbox,
+.price-checkbox{
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  border: 1px solid rgba(178,188,255,0.7);
+  border-radius: 4px;
+  background: rgba(143,156,255,0.4);
+  cursor: pointer;
+  vertical-align: middle;
+  position: relative;
+}
+
+.filter-checkbox:checked,
+.price-checkbox:checked{
+  background: var(--periwinkle);
+  border-color: var(--periwinkle-2);
+}
+
+.filter-checkbox:checked::after,
+.price-checkbox:checked::after{
+  content: '✓';
+  position: absolute;
+  left: 3px;
+  top: -1px;
+  color: #0b1024;
+  font-size: 11px;
+  font-weight: 800;
+}
 
 .main-content{
   background: linear-gradient(180deg, rgba(17,20,38,0.86), rgba(12,15,28,0.86));
@@ -286,6 +316,20 @@ a { color: inherit; text-decoration: none; }
   justify-content:center;
 }
 
+.platform-logo,
+.legend-icon,
+.rank-badge,
+.card [class*="logo"],
+.rank-item [class*="logo"],
+.rank-item img,
+.script-card [class*="logo"],
+.script-card img{
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  cursor: pointer;
+}
+
 /* Full-width bottom info bar. Style/resize by editing font-size, padding, and min-height values here. */
 .info-btn{
   width: 100%;
@@ -359,7 +403,6 @@ a { color: inherit; text-decoration: none; }
 
 .btn-primary{ background: linear-gradient(90deg, #8192ff, #adb8ff); color: #090d1d; border: 0; padding: 10px 12px; border-radius: 10px; cursor: pointer; font-weight: 700; }
 .block{ display: block; width: 100%; }
-.sidebar-note{ color: var(--muted); font-size: .8rem; }
 
 @media (max-width: 980px){
   .legend{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
