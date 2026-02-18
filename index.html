@@ -74,6 +74,7 @@
           <div class="price-controls">
             <label><input id="priceFree" type="checkbox" class="price-checkbox" value="free" /> Free</label>
             <label><input id="pricePaid" type="checkbox" class="price-checkbox" value="paid" /> Paid</label>
+            <label><input id="priceBoth" type="checkbox" class="price-checkbox" value="both" /> Free + Paid</label>
           </div>
           <!-- To expand pricing categories later, add more .price-checkbox inputs (e.g. value="subscription") and update isPriceMatch() in script.js -->
         </section>
@@ -111,7 +112,6 @@
       <section id="scriptsPage" class="app-page" data-page="scripts" hidden>
         <header class="subpage-header">
           <h2>Scripts Hub</h2>
-          <p>Use these tabs to manage tier lists, browse scripts, and keep your own saved snippets.</p>
         </header>
 
         <div class="subtabs" role="tablist" aria-label="Scripts hub tabs">
@@ -119,30 +119,26 @@
           <button class="subtab-btn" role="tab" aria-selected="false" data-subtab-target="tierFreePanel">Executor Tier List (Free)</button>
           <button class="subtab-btn" role="tab" aria-selected="false" data-subtab-target="popularScriptsPanel">Popular Scripts</button>
           <button class="subtab-btn" role="tab" aria-selected="false" data-subtab-target="savedScriptsPanel">Saved Scripts</button>
-          <button class="subtab-btn" role="tab" aria-selected="false" data-subtab-target="inDevelopmentPanel">In Development</button>
+          <button class="subtab-btn" role="tab" aria-selected="false" data-subtab-target="recentChangesPanel">Recent Changes</button>
         </div>
 
         <section id="tierPaidPanel" class="subtab-panel" role="tabpanel">
           <h3>Paid Executor Tier List</h3>
-          <p class="panel-note">Edit the <code>scriptsHubData.tierListPaid</code> array in <code>script.js</code> to change rankings and notes.</p>
           <div id="tierPaidList" class="rank-list"></div>
         </section>
 
         <section id="tierFreePanel" class="subtab-panel" role="tabpanel" hidden>
           <h3>Free Executor Tier List</h3>
-          <p class="panel-note">Edit the <code>scriptsHubData.tierListFree</code> array in <code>script.js</code> to change rankings and notes.</p>
           <div id="tierFreeList" class="rank-list"></div>
         </section>
 
         <section id="popularScriptsPanel" class="subtab-panel" role="tabpanel" hidden>
           <h3>Popular Scripts</h3>
-          <p class="panel-note">Edit the <code>scriptsHubData.popularScripts</code> array in <code>script.js</code> to add/remove script cards.</p>
           <div id="popularScriptsList" class="script-list"></div>
         </section>
 
         <section id="savedScriptsPanel" class="subtab-panel" role="tabpanel" hidden>
           <h3>Saved Scripts</h3>
-          <p class="panel-note">Paste script text below, then click Save Script to store it in your browser.</p>
           <label class="input-label" for="savedScriptName">Script title</label>
           <input id="savedScriptName" class="script-input" type="text" placeholder="Example: Auto Farm v2" />
 
@@ -151,18 +147,16 @@
 
           <div class="saved-script-actions">
             <button id="saveScriptBtn" class="btn-primary" type="button">Save Script</button>
+            <button id="deleteScriptBtn" class="btn-danger" type="button">Delete</button>
           </div>
+          <p id="savedScriptError" class="saved-script-error" role="status" aria-live="polite"></p>
 
           <div id="savedScriptsList" class="saved-script-list"></div>
         </section>
 
-        <section id="inDevelopmentPanel" class="subtab-panel" role="tabpanel" hidden>
-          <h3>In Development</h3>
-          <ul class="dev-list">
-            <li>Advanced script categories and search inside saved scripts.</li>
-            <li>Version history for script revisions.</li>
-            <li>Cloud sync for saved scripts across devices.</li>
-          </ul>
+        <section id="recentChangesPanel" class="subtab-panel" role="tabpanel" hidden>
+          <h3>Recent Changes</h3>
+          <div id="recentChangesList" class="changes-list"></div>
         </section>
       </section>
     </main>

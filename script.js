@@ -151,6 +151,12 @@ const scriptsHubData = {
       description: 'Auto target assist and route preset loader for dungeon runs.',
       script: 'loadstring(game:HttpGet("https://example.com/dungeon-assist.lua"))()'
     }
+  ],
+  recentChanges: [
+    { date: '2026-02-18', summary: 'Replaced the In Development tab with a Recent Changes log.' },
+    { date: '2026-02-18', summary: 'Restored the Free + Paid pricing filter and matching behavior.' },
+    { date: '2026-02-18', summary: 'Removed Script Hub tips and fixed duplicate search clear icon behavior.' },
+    { date: '2026-02-18', summary: 'Added Save tab deletion plus required title/script validation.' }
   ]
 };
 
@@ -302,19 +308,21 @@ function getActiveFilters() {
 function getPriceControls() {
   return {
     free: qs('#priceFree').checked,
-    paid: qs('#pricePaid').checked
+    paid: qs('#pricePaid').checked,
+    both: qs('#priceBoth').checked
   };
 }
 
 function isPriceMatch(prod, priceControls) {
   const costDisplay = (prod.costDisplay || 'paid').toLowerCase();
-  const isFree = costDisplay === 'free' || costDisplay === 'both';
-  const isPaid = costDisplay === 'paid' || costDisplay === 'both';
+  const selectedFilters = [priceControls.free, priceControls.paid, priceControls.both].filter(Boolean).length;
 
-  // Free + Paid unchecked means no price restriction.
-  if (!priceControls.free && !priceControls.paid) return true;
-  if (priceControls.free && isFree) return true;
-  if (priceControls.paid && isPaid) return true;
+  if (!selectedFilters) return true;
+
+  if (priceControls.both && costDisplay === 'both') return true;
+  if (priceControls.free && costDisplay === 'free') return true;
+  if (priceControls.paid && costDisplay === 'paid') return true;
+
   return false;
 }
 
@@ -418,6 +426,13 @@ function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
 }
 
+function updateSearchClearButton() {
+  const input = qs('#searchInput');
+  const clearBtn = qs('#clearSearchBtn');
+  if (!input || !clearBtn) return;
+  const hasValue = input.value.trim().length > 0;
+  clearBtn.hidden = input.disabled || !hasValue;
+}
 
 function renderTierList(containerId, entries) {
   const wrap = qs(`#${containerId}`);
@@ -450,6 +465,18 @@ function renderPopularScripts() {
   `).join('');
 }
 
+function renderRecentChanges() {
+  const wrap = qs('#recentChangesList');
+  if (!wrap) return;
+
+  wrap.innerHTML = scriptsHubData.recentChanges.map(item => `
+    <article class="change-item">
+      <strong>${escapeHtml(item.date)}</strong>
+      <p>${escapeHtml(item.summary)}</p>
+    </article>
+  `).join('');
+}
+
 const savedScriptsStorageKey = 'voxlis_saved_scripts';
 let currentSavedScriptId = null;
 
@@ -478,7 +505,7 @@ function renderSavedScriptsList() {
 
   wrap.innerHTML = items.map(item => `
     <button class="saved-script-item ${item.id === currentSavedScriptId ? 'is-active' : ''}" data-saved-script-id="${escapeHtml(item.id)}" type="button">
-      <strong>${escapeHtml(item.title || 'Untitled script')}</strong>
+      <strong>${escapeHtml(item.title)}</strong>
       <span>${new Date(item.updatedAt).toLocaleString()}</span>
     </button>
   `).join('');
@@ -506,22 +533,29 @@ function setEditorFromSavedScript(item) {
   bodyInput.value = item.body || '';
 }
 
+function setSavedScriptError(message = '') {
+  const errorEl = qs('#savedScriptError');
+  if (!errorEl) return;
+  errorEl.textContent = message;
+}
+
 function saveScriptFromEditor() {
   const nameInput = qs('#savedScriptName');
   const bodyInput = qs('#savedScriptBody');
   if (!nameInput || !bodyInput) return;
 
   const trimmedTitle = nameInput.value.trim();
-  const body = bodyInput.value;
+  const body = bodyInput.value.trim();
 
-  if (!trimmedTitle && !body.trim()) {
+  if (!trimmedTitle || !body) {
+    setSavedScriptError('A script title and script content are both required.');
     return;
   }
 
   const items = getSavedScripts();
   const scriptToPersist = {
     id: `script_${Date.now()}`,
-    title: trimmedTitle || 'Untitled script',
+    title: trimmedTitle,
     body,
     updatedAt: Date.now()
   };
@@ -539,8 +573,30 @@ function saveScriptFromEditor() {
 
   currentSavedScriptId = null;
   clearSavedScriptEditor();
+  setSavedScriptError('');
   renderSavedScriptsList();
   nameInput.focus();
+}
+
+function deleteSelectedSavedScript() {
+  if (!currentSavedScriptId) {
+    setSavedScriptError('Select a saved script to delete it.');
+    return;
+  }
+
+  const items = getSavedScripts();
+  const remainingItems = items.filter(item => item.id !== currentSavedScriptId);
+
+  if (remainingItems.length === items.length) {
+    setSavedScriptError('Selected script could not be found.');
+    return;
+  }
+
+  writeSavedScripts(remainingItems);
+  currentSavedScriptId = null;
+  clearSavedScriptEditor();
+  setSavedScriptError('');
+  renderSavedScriptsList();
 }
 
 function setActivePage(targetPageId) {
@@ -554,6 +610,7 @@ function setActivePage(targetPageId) {
   qs('#sidebar').hidden = onScriptsPage;
   qs('#searchInput').disabled = onScriptsPage;
   qs('#clearSearchBtn').disabled = onScriptsPage;
+  updateSearchClearButton();
   qs('.page-layout').classList.toggle('scripts-mode', onScriptsPage);
 }
 
@@ -561,6 +618,7 @@ function initScriptsHub() {
   renderTierList('tierPaidList', scriptsHubData.tierListPaid);
   renderTierList('tierFreeList', scriptsHubData.tierListFree);
   renderPopularScripts();
+  renderRecentChanges();
 
   renderSavedScriptsList();
   clearSavedScriptEditor();
@@ -596,20 +654,27 @@ function initScriptsHub() {
     currentSavedScriptId = trigger.getAttribute('data-saved-script-id');
     const selected = getSavedScripts().find(item => item.id === currentSavedScriptId);
     setEditorFromSavedScript(selected);
+    setSavedScriptError('');
     renderSavedScriptsList();
   });
 
   qs('#saveScriptBtn').addEventListener('click', saveScriptFromEditor);
+  qs('#deleteScriptBtn').addEventListener('click', deleteSelectedSavedScript);
 }
 
 function init() {
   renderProducts(products);
   initScriptsHub();
+  updateSearchClearButton();
 
-  qs('#searchInput').addEventListener('input', applyAllFilters);
+  qs('#searchInput').addEventListener('input', () => {
+    applyAllFilters();
+    updateSearchClearButton();
+  });
   qs('#clearSearchBtn').addEventListener('click', () => {
     qs('#searchInput').value = '';
     applyAllFilters();
+    updateSearchClearButton();
   });
 
   qsa('.filter-checkbox').forEach(cb => cb.addEventListener('change', applyAllFilters));
@@ -620,6 +685,7 @@ function init() {
     qsa('.price-checkbox').forEach(cb => (cb.checked = false));
     qs('#searchInput').value = '';
     applyAllFilters();
+    updateSearchClearButton();
   });
 
   qs('#modalCloseBtn').addEventListener('click', closeModal);
