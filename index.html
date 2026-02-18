@@ -80,7 +80,6 @@
 
         <hr />
         <button id="resetFilters" class="btn-primary block">Reset filters</button>
-        <p class="sidebar-note">Tip: To add filters, copy a <code>label + input</code> block and adjust <code>data-filter-group</code>.</p>
       </div>
     </aside>
 
@@ -143,7 +142,7 @@
 
         <section id="savedScriptsPanel" class="subtab-panel" role="tabpanel" hidden>
           <h3>Saved Scripts</h3>
-          <p class="panel-note">Paste script text below. It autosaves to your browser using local storage.</p>
+          <p class="panel-note">Paste script text below, then click Save Script to store it in your browser.</p>
           <label class="input-label" for="savedScriptName">Script title</label>
           <input id="savedScriptName" class="script-input" type="text" placeholder="Example: Auto Farm v2" />
 
@@ -151,7 +150,7 @@
           <textarea id="savedScriptBody" class="script-textarea" placeholder="Paste your script here..."></textarea>
 
           <div class="saved-script-actions">
-            <button id="newSavedScriptBtn" class="btn-primary" type="button">New script</button>
+            <button id="saveScriptBtn" class="btn-primary" type="button">Save Script</button>
           </div>
 
           <div id="savedScriptsList" class="saved-script-list"></div>

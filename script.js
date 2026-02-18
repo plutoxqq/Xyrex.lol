@@ -325,13 +325,15 @@ function applyAllFilters() {
     if (searchText && !prod.name.toLowerCase().includes(searchText)) return false;
 
     if (active.platform && active.platform.length) {
-      if (!prod.platform.some(p => active.platform.includes(p))) return false;
+      const productPlatforms = prod.platform || [];
+      const matchesAllPlatforms = active.platform.every(platform => productPlatforms.includes(platform));
+      if (!matchesAllPlatforms) return false;
     }
 
     if (active.tags && active.tags.length) {
       const productTags = [...(prod.tags || []), ...(prod.features || [])];
-      const matches = active.tags.some(t => productTags.includes(t));
-      if (!matches) return false;
+      const matchesAllTags = active.tags.every(tag => productTags.includes(tag));
+      if (!matchesAllTags) return false;
     }
 
     if (active.cheatType && active.cheatType.length) {
@@ -461,7 +463,7 @@ function renderSavedScriptsList() {
 
   const items = getSavedScripts();
   if (!items.length) {
-    wrap.innerHTML = '<p class="saved-empty">No saved scripts yet. Start typing and one will be created automatically.</p>';
+    wrap.innerHTML = '<p class="saved-empty">No saved scripts yet.</p>';
     return;
   }
 
@@ -473,58 +475,63 @@ function renderSavedScriptsList() {
   `).join('');
 }
 
+function clearSavedScriptEditor() {
+  const nameInput = qs('#savedScriptName');
+  const bodyInput = qs('#savedScriptBody');
+  if (!nameInput || !bodyInput) return;
+  nameInput.value = '';
+  bodyInput.value = '';
+}
+
 function setEditorFromSavedScript(item) {
-  qs('#savedScriptName').value = item?.title || '';
-  qs('#savedScriptBody').value = item?.body || '';
-}
-
-function ensureSelectedScript() {
-  const items = getSavedScripts();
-  if (currentSavedScriptId && items.some(item => item.id === currentSavedScriptId)) return;
-  if (items.length) {
-    currentSavedScriptId = items[0].id;
-    setEditorFromSavedScript(items[0]);
-    return;
-  }
-
-  const newId = `script_${Date.now()}`;
-  const fresh = { id: newId, title: '', body: '', updatedAt: Date.now() };
-  writeSavedScripts([fresh]);
-  currentSavedScriptId = newId;
-  setEditorFromSavedScript(fresh);
-}
-
-function saveCurrentScript() {
   const nameInput = qs('#savedScriptName');
   const bodyInput = qs('#savedScriptBody');
   if (!nameInput || !bodyInput) return;
 
-  ensureSelectedScript();
-  const items = getSavedScripts();
-  const idx = items.findIndex(item => item.id === currentSavedScriptId);
-  if (idx === -1) return;
+  if (!item) {
+    clearSavedScriptEditor();
+    return;
+  }
 
-  items[idx] = {
-    ...items[idx],
-    title: nameInput.value.trim(),
-    body: bodyInput.value,
+  nameInput.value = item.title || '';
+  bodyInput.value = item.body || '';
+}
+
+function saveScriptFromEditor() {
+  const nameInput = qs('#savedScriptName');
+  const bodyInput = qs('#savedScriptBody');
+  if (!nameInput || !bodyInput) return;
+
+  const trimmedTitle = nameInput.value.trim();
+  const body = bodyInput.value;
+
+  if (!trimmedTitle && !body.trim()) {
+    return;
+  }
+
+  const items = getSavedScripts();
+  const scriptToPersist = {
+    id: `script_${Date.now()}`,
+    title: trimmedTitle || 'Untitled script',
+    body,
     updatedAt: Date.now()
   };
 
-  writeSavedScripts(items);
-  renderSavedScriptsList();
-}
+  if (currentSavedScriptId) {
+    const existingIndex = items.findIndex(item => item.id === currentSavedScriptId);
+    if (existingIndex !== -1) {
+      scriptToPersist.id = items[existingIndex].id;
+      items.splice(existingIndex, 1);
+    }
+  }
 
-function createNewSavedScript() {
-  const items = getSavedScripts();
-  const newId = `script_${Date.now()}`;
-  const fresh = { id: newId, title: '', body: '', updatedAt: Date.now() };
-  items.unshift(fresh);
+  items.unshift(scriptToPersist);
   writeSavedScripts(items);
-  currentSavedScriptId = newId;
-  setEditorFromSavedScript(fresh);
+
+  currentSavedScriptId = null;
+  clearSavedScriptEditor();
   renderSavedScriptsList();
-  qs('#savedScriptName').focus();
+  nameInput.focus();
 }
 
 function setActivePage(targetPageId) {
@@ -546,8 +553,8 @@ function initScriptsHub() {
   renderTierList('tierFreeList', scriptsHubData.tierListFree);
   renderPopularScripts();
 
-  ensureSelectedScript();
   renderSavedScriptsList();
+  clearSavedScriptEditor();
 
   qsa('.subtab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -583,9 +590,7 @@ function initScriptsHub() {
     renderSavedScriptsList();
   });
 
-  qs('#savedScriptName').addEventListener('input', saveCurrentScript);
-  qs('#savedScriptBody').addEventListener('input', saveCurrentScript);
-  qs('#newSavedScriptBtn').addEventListener('click', createNewSavedScript);
+  qs('#saveScriptBtn').addEventListener('click', saveScriptFromEditor);
 }
 
 function init() {
