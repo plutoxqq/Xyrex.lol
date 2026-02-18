@@ -8,7 +8,7 @@
    ================================
    To add a product:
     - Copy one object in the array and update fields.
-    - Set freeOrPaid to "paid" or "free".
+    - Set costDisplay to "free", "paid", or "both".
     - tags controls legend-style state symbols used on each card.
 */
 const products = [
@@ -25,7 +25,7 @@ const products = [
     pros: ["Fast startup and analysis pipeline", "Extensible plugin architecture", "Strong multi-instance stability"],
     cons: ["Minor UI lag on first launch", "Heuristics can over-flag edge cases"],
     pricingOptions: ["1 Week — $5.99", "1 Month — $17.99", "Lifetime — $69.99"],
-    freeOrPaid: "paid",
+    costDisplay: "paid",
     stability: "Very Stable",
     trustLevel: "High",
     status: "Undetected"
@@ -43,7 +43,7 @@ const products = [
     pros: ["Deep kernel integration", "Reliable fallback protections", "Strong control for advanced workflows"],
     cons: ["Driver signing workaround needed on some setups"],
     pricingOptions: ["1 Week — $8.99", "1 Month — $19.99", "Lifetime — $89.99"],
-    freeOrPaid: "paid",
+    costDisplay: "paid",
     stability: "Stable",
     trustLevel: "High",
     status: "Updating"
@@ -61,7 +61,7 @@ const products = [
     pros: ["Great for large-batch automation", "AI-assisted detection workflows", "Cross-mobile platform support"],
     cons: ["Cloud synchronization can be region-dependent"],
     pricingOptions: ["1 Week — $4.99", "1 Month — $14.99", "Lifetime — $59.99"],
-    freeOrPaid: "free",
+    costDisplay: "both",
     stability: "Stable",
     trustLevel: "Medium",
     status: "Working"
@@ -79,7 +79,7 @@ const products = [
     pros: ["Low resource usage", "Fast spin-up for multi-instance runs"],
     cons: ["Reduced compatibility on older GPUs"],
     pricingOptions: ["1 Week — $3.99", "1 Month — $10.99", "Lifetime — $39.99"],
-    freeOrPaid: "paid",
+    costDisplay: "paid",
     stability: "Moderate",
     trustLevel: "Medium",
     status: "Detected"
@@ -97,7 +97,7 @@ const products = [
     pros: ["Broad utility set", "Flexible configuration options"],
     cons: ["Can conflict with antivirus software", "Setup complexity is higher than average"],
     pricingOptions: ["1 Week — $6.99", "1 Month — $12.00", "Lifetime — $49.99"],
-    freeOrPaid: "paid",
+    costDisplay: "paid",
     stability: "Unstable",
     trustLevel: "Low",
     status: "Discontinued"
@@ -115,7 +115,7 @@ const products = [
     pros: ["High sUNC", "AntiCheat Bypass", "Instant Injection", "High stability"],
     cons: ["Can conflict with antivirus software", "Setup complexity is higher than average"],
     pricingOptions: ["1 Day — $0.99", "3 Days — $1.99", "1 Week — $4.99", "1 Month — $13.99"],
-    freeOrPaid: "paid",
+    costDisplay: "paid",
     stability: "Stable",
     trustLevel: "High",
     status: "Undetected"
@@ -246,16 +246,21 @@ function createProductCard(product, index) {
 
   const platformChips = createPlatformChips(product.platform);
 
+  const keyBadge = document.createElement('div');
+  keyBadge.className = `key-system-badge ${String(product.keySystem || '').toLowerCase() === 'keyless' ? 'is-keyless' : 'is-keyed'}`;
+  keyBadge.textContent = `Key: ${product.keySystem || 'Unknown'}`;
+
   const summary = document.createElement('p');
   summary.className = 'summary';
   summary.textContent = product.description;
 
   const price = document.createElement('div');
   price.className = 'price';
-  price.textContent = (product.pricingOptions && product.pricingOptions[0]) || '—';
+  price.textContent = formatCostDisplay(product.costDisplay);
 
   body.appendChild(header);
   body.appendChild(platformChips);
+  body.appendChild(keyBadge);
   body.appendChild(summary);
   body.appendChild(price);
 
@@ -307,13 +312,22 @@ function getPriceControls() {
 }
 
 function isPriceMatch(prod, priceControls) {
-  const isFree = prod.freeOrPaid === 'free';
+  const costDisplay = (prod.costDisplay || 'paid').toLowerCase();
+  const isFree = costDisplay === 'free' || costDisplay === 'both';
+  const isPaid = costDisplay === 'paid' || costDisplay === 'both';
 
   // Free + Paid unchecked means no price restriction.
   if (!priceControls.free && !priceControls.paid) return true;
   if (priceControls.free && isFree) return true;
-  if (priceControls.paid && !isFree) return true;
+  if (priceControls.paid && isPaid) return true;
   return false;
+}
+
+function formatCostDisplay(costDisplay) {
+  const normalized = String(costDisplay || 'paid').toLowerCase();
+  if (normalized === 'free') return 'Free';
+  if (normalized === 'both') return 'Free + Paid';
+  return 'Paid';
 }
 
 function applyAllFilters() {
@@ -407,6 +421,31 @@ function closeModal() {
 function escapeHtml(str) {
   if (!str) return '';
   return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+}
+
+const themeStorageKey = 'voxlis_theme_no_gradient';
+
+function applyThemePreference(noGradient) {
+  document.body.classList.toggle('no-gradient-theme', Boolean(noGradient));
+  const toggleBtn = qs('#toggleGradientBtn');
+  if (!toggleBtn) return;
+  toggleBtn.setAttribute('aria-pressed', String(Boolean(noGradient)));
+  toggleBtn.textContent = noGradient ? 'Use Gradient' : 'No Gradient';
+}
+
+function initThemeToggle() {
+  const toggleBtn = qs('#toggleGradientBtn');
+  if (!toggleBtn) return;
+
+  const saved = localStorage.getItem(themeStorageKey);
+  const prefersNoGradient = saved === 'true';
+  applyThemePreference(prefersNoGradient);
+
+  toggleBtn.addEventListener('click', () => {
+    const nextState = !document.body.classList.contains('no-gradient-theme');
+    localStorage.setItem(themeStorageKey, String(nextState));
+    applyThemePreference(nextState);
+  });
 }
 
 
@@ -594,6 +633,7 @@ function initScriptsHub() {
 }
 
 function init() {
+  initThemeToggle();
   renderProducts(products);
   initScriptsHub();
 
