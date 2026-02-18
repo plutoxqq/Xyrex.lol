@@ -8,7 +8,7 @@
    ================================
    To add a product:
     - Copy one object in the array and update fields.
-    - Set costDisplay to "free", "paid", or "both".
+    - Set freeOrPaid to "paid" or "free".
     - tags controls legend-style state symbols used on each card.
 */
 const products = [
@@ -246,10 +246,6 @@ function createProductCard(product, index) {
 
   const platformChips = createPlatformChips(product.platform);
 
-  const keyBadge = document.createElement('div');
-  keyBadge.className = `key-system-badge ${String(product.keySystem || '').toLowerCase() === 'keyless' ? 'is-keyless' : 'is-keyed'}`;
-  keyBadge.textContent = `Key: ${product.keySystem || 'Unknown'}`;
-
   const summary = document.createElement('p');
   summary.className = 'summary';
   summary.textContent = product.description;
@@ -260,7 +256,6 @@ function createProductCard(product, index) {
 
   body.appendChild(header);
   body.appendChild(platformChips);
-  body.appendChild(keyBadge);
   body.appendChild(summary);
   body.appendChild(price);
 
@@ -307,8 +302,7 @@ function getActiveFilters() {
 function getPriceControls() {
   return {
     free: qs('#priceFree').checked,
-    paid: qs('#pricePaid').checked,
-    both: qs('#priceBoth').checked
+    paid: qs('#pricePaid').checked
   };
 }
 
@@ -424,31 +418,6 @@ function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
 }
 
-const themeStorageKey = 'voxlis_theme_no_gradient';
-
-function applyThemePreference(noGradient) {
-  document.body.classList.toggle('no-gradient-theme', Boolean(noGradient));
-  const toggleBtn = qs('#toggleGradientBtn');
-  if (!toggleBtn) return;
-  toggleBtn.setAttribute('aria-pressed', String(Boolean(noGradient)));
-  toggleBtn.textContent = noGradient ? 'Use Gradient' : 'No Gradient';
-}
-
-function initThemeToggle() {
-  const toggleBtn = qs('#toggleGradientBtn');
-  if (!toggleBtn) return;
-
-  const saved = localStorage.getItem(themeStorageKey);
-  const prefersNoGradient = saved === 'true';
-  applyThemePreference(prefersNoGradient);
-
-  toggleBtn.addEventListener('click', () => {
-    const nextState = !document.body.classList.contains('no-gradient-theme');
-    localStorage.setItem(themeStorageKey, String(nextState));
-    applyThemePreference(nextState);
-  });
-}
-
 
 function renderTierList(containerId, entries) {
   const wrap = qs(`#${containerId}`);
@@ -545,14 +514,14 @@ function saveScriptFromEditor() {
   const trimmedTitle = nameInput.value.trim();
   const body = bodyInput.value;
 
-  if (!trimmedTitle || !body.trim()) {
+  if (!trimmedTitle && !body.trim()) {
     return;
   }
 
   const items = getSavedScripts();
   const scriptToPersist = {
     id: `script_${Date.now()}`,
-    title: trimmedTitle,
+    title: trimmedTitle || 'Untitled script',
     body,
     updatedAt: Date.now()
   };
@@ -572,253 +541,6 @@ function saveScriptFromEditor() {
   clearSavedScriptEditor();
   renderSavedScriptsList();
   nameInput.focus();
-}
-
-
-function deleteSelectedScript() {
-  if (!currentSavedScriptId) return;
-
-  const items = getSavedScripts();
-  const nextItems = items.filter(item => item.id !== currentSavedScriptId);
-  writeSavedScripts(nextItems);
-
-  currentSavedScriptId = null;
-  clearSavedScriptEditor();
-  renderSavedScriptsList();
-}
-
-const themeStorageKey = 'voxlis_theme_palette_v2';
-
-const defaultThemeVars = {
-  '--bg': '#06070d',
-  '--bg-2': '#0a0c14',
-  '--panel': '#111426',
-  '--panel-2': '#12172b',
-  '--card': '#12162a',
-  '--text': '#eef1ff',
-  '--muted': '#aeb5d6',
-  '--periwinkle': '#8f9cff',
-  '--periwinkle-2': '#b2bcff',
-  '--accent-rgb': '143, 156, 255',
-  '--accent-2-rgb': '178, 188, 255',
-  '--bg-glow': '#1b2141',
-  '--accent-gradient': 'linear-gradient(90deg, #7689ff, #9da9ff)',
-  '--btn-gradient': 'linear-gradient(90deg, #8192ff, #adb8ff)',
-  '--nav-gradient': 'linear-gradient(90deg, rgba(8,10,18,0.95), rgba(12,16,30,0.92))',
-  '--sidebar-gradient': 'linear-gradient(160deg, rgba(var(--accent-rgb),0.22), rgba(13,16,30,0.96) 68%)',
-  '--main-gradient': 'linear-gradient(165deg, rgba(var(--accent-rgb),0.2), rgba(12,15,28,0.9) 58%)',
-  '--card-gradient': 'linear-gradient(175deg, rgba(var(--accent-rgb),0.22), rgba(var(--accent-rgb),0.12) 38%, rgba(15,20,36,0.95))',
-  '--chip-surface': 'rgba(14,18,35,.65)',
-  '--surface-soft': 'rgba(17, 24, 46, 0.9)'
-};
-
-const presetThemeBases = {
-  lavender: '#a88ffb',
-  teal: '#6fc4c8',
-  rose: '#f5a6bf',
-  peach: '#f2b68f'
-};
-
-function normalizeColor(rawValue) {
-  const probe = document.createElement('span');
-  probe.style.color = '';
-  probe.style.color = rawValue;
-  if (!probe.style.color) return null;
-
-  const colorString = probe.style.color;
-  const matches = colorString.match(/\d+/g);
-  if (!matches || matches.length < 3) return null;
-
-  const [r, g, b] = matches.slice(0, 3).map(Number);
-  return { r, g, b };
-}
-
-function rgbToHex(r, g, b) {
-  return `#${[r, g, b].map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('')}`;
-}
-
-function rgbToHsl(r, g, b) {
-  const nr = r / 255;
-  const ng = g / 255;
-  const nb = b / 255;
-  const max = Math.max(nr, ng, nb);
-  const min = Math.min(nr, ng, nb);
-  const delta = max - min;
-
-  let h = 0;
-  if (delta !== 0) {
-    if (max === nr) h = ((ng - nb) / delta) % 6;
-    else if (max === ng) h = (nb - nr) / delta + 2;
-    else h = (nr - ng) / delta + 4;
-  }
-  h = Math.round(h * 60);
-  if (h < 0) h += 360;
-
-  const l = (max + min) / 2;
-  const s = delta === 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
-
-  return { h, s: s * 100, l: l * 100 };
-}
-
-function hslToRgb(h, s, l) {
-  const ns = s / 100;
-  const nl = l / 100;
-  const c = (1 - Math.abs(2 * nl - 1)) * ns;
-  const x = c * (1 - Math.abs((h / 60) % 2 - 1));
-  const m = nl - c / 2;
-
-  let r = 0;
-  let g = 0;
-  let b = 0;
-
-  if (h < 60) [r, g, b] = [c, x, 0];
-  else if (h < 120) [r, g, b] = [x, c, 0];
-  else if (h < 180) [r, g, b] = [0, c, x];
-  else if (h < 240) [r, g, b] = [0, x, c];
-  else if (h < 300) [r, g, b] = [x, 0, c];
-  else [r, g, b] = [c, 0, x];
-
-  return {
-    r: (r + m) * 255,
-    g: (g + m) * 255,
-    b: (b + m) * 255
-  };
-}
-
-function toneFromHsl(baseHsl, lOffset, sOffset = 0) {
-  const h = baseHsl.h;
-  const s = Math.max(8, Math.min(92, baseHsl.s + sOffset));
-  const l = Math.max(6, Math.min(92, baseHsl.l + lOffset));
-  const rgb = hslToRgb(h, s, l);
-  return rgbToHex(rgb.r, rgb.g, rgb.b);
-}
-
-function buildThemeFromBase(baseRgb) {
-  const baseHsl = rgbToHsl(baseRgb.r, baseRgb.g, baseRgb.b);
-  const accent2Hex = toneFromHsl(baseHsl, 10, -4);
-  const accent2Rgb = normalizeColor(accent2Hex);
-
-  return {
-    '--bg': toneFromHsl(baseHsl, -45, -35),
-    '--bg-2': toneFromHsl(baseHsl, -41, -32),
-    '--panel': toneFromHsl(baseHsl, -36, -22),
-    '--panel-2': toneFromHsl(baseHsl, -31, -16),
-    '--card': toneFromHsl(baseHsl, -33, -18),
-    '--text': '#eef1ff',
-    '--muted': toneFromHsl(baseHsl, 16, -22),
-    '--periwinkle': rgbToHex(baseRgb.r, baseRgb.g, baseRgb.b),
-    '--periwinkle-2': accent2Hex,
-    '--accent-rgb': `${Math.round(baseRgb.r)}, ${Math.round(baseRgb.g)}, ${Math.round(baseRgb.b)}`,
-    '--accent-2-rgb': accent2Rgb ? `${Math.round(accent2Rgb.r)}, ${Math.round(accent2Rgb.g)}, ${Math.round(accent2Rgb.b)}` : '178, 188, 255',
-    '--bg-glow': toneFromHsl(baseHsl, -26, -15),
-    '--accent-gradient': `linear-gradient(90deg, ${toneFromHsl(baseHsl, -2, 4)}, ${toneFromHsl(baseHsl, 4, 2)})`,
-    '--btn-gradient': `linear-gradient(90deg, ${toneFromHsl(baseHsl, 2, 6)}, ${toneFromHsl(baseHsl, 11, -2)})`,
-    '--nav-gradient': `linear-gradient(90deg, rgba(${Math.round(baseRgb.r)}, ${Math.round(baseRgb.g)}, ${Math.round(baseRgb.b)}, 0.24), rgba(8,12,24,0.94) 52%, rgba(8,12,24,0.96))`,
-    '--sidebar-gradient': `linear-gradient(160deg, rgba(${Math.round(baseRgb.r)}, ${Math.round(baseRgb.g)}, ${Math.round(baseRgb.b)}, 0.30), rgba(10,14,26,0.95) 70%)`,
-    '--main-gradient': `linear-gradient(165deg, rgba(${Math.round(baseRgb.r)}, ${Math.round(baseRgb.g)}, ${Math.round(baseRgb.b)}, 0.26), rgba(12,15,28,0.9) 58%)`,
-    '--card-gradient': `linear-gradient(175deg, rgba(${Math.round(baseRgb.r)}, ${Math.round(baseRgb.g)}, ${Math.round(baseRgb.b)}, 0.26), rgba(${Math.round(baseRgb.r)}, ${Math.round(baseRgb.g)}, ${Math.round(baseRgb.b)}, 0.12) 36%, rgba(15,20,36,0.95))`,
-    '--chip-surface': `rgba(${Math.round(baseRgb.r)}, ${Math.round(baseRgb.g)}, ${Math.round(baseRgb.b)}, 0.15)`,
-    '--surface-soft': `rgba(${Math.round(baseRgb.r)}, ${Math.round(baseRgb.g)}, ${Math.round(baseRgb.b)}, 0.12)`
-  };
-}
-
-function applyThemeVars(themeVars) {
-  Object.entries(themeVars).forEach(([key, value]) => {
-    document.documentElement.style.setProperty(key, value);
-  });
-}
-
-function applyThemeColour(rawValue) {
-  const normalized = normalizeColor(rawValue);
-  if (!normalized) return false;
-
-  const themeVars = buildThemeFromBase(normalized);
-  applyThemeVars(themeVars);
-  localStorage.setItem(themeStorageKey, JSON.stringify({ type: 'custom', value: rawValue }));
-  return true;
-}
-
-function applyPresetTheme(presetName) {
-  const baseColor = presetThemeBases[presetName];
-  if (!baseColor) return;
-  const normalized = normalizeColor(baseColor);
-  if (!normalized) return;
-
-  applyThemeVars(buildThemeFromBase(normalized));
-  localStorage.setItem(themeStorageKey, JSON.stringify({ type: 'preset', value: presetName }));
-}
-
-function resetThemeToDefault() {
-  applyThemeVars(defaultThemeVars);
-  localStorage.removeItem(themeStorageKey);
-}
-
-function loadSavedTheme() {
-  const saved = localStorage.getItem(themeStorageKey);
-  if (!saved) {
-    resetThemeToDefault();
-    return;
-  }
-
-  try {
-    const parsed = JSON.parse(saved);
-    if (parsed.type === 'preset') {
-      applyPresetTheme(parsed.value);
-      return;
-    }
-    if (parsed.type === 'custom') {
-      applyThemeColour(parsed.value);
-      return;
-    }
-  } catch (error) {
-    // ignore malformed saved theme and fallback to default
-  }
-
-  resetThemeToDefault();
-}
-
-function initThemeControls() {
-  const panel = qs('#themePanel');
-  const toggleBtn = qs('#themeToggleBtn');
-  const customInput = qs('#customThemeColor');
-  if (!panel || !toggleBtn || !customInput) return;
-
-  loadSavedTheme();
-
-  toggleBtn.addEventListener('click', (event) => {
-    event.stopPropagation();
-    panel.hidden = !panel.hidden;
-  });
-
-  panel.addEventListener('click', event => event.stopPropagation());
-
-  qsa('.theme-swatch').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const value = btn.getAttribute('data-theme-preset');
-      if (!value) return;
-      applyPresetTheme(value);
-      panel.hidden = true;
-    });
-  });
-
-  qs('#applyCustomThemeBtn').addEventListener('click', () => {
-    const value = customInput.value.trim();
-    if (!value) return;
-    const isValid = applyThemeColour(value);
-    if (!isValid) return;
-    customInput.value = '';
-    panel.hidden = true;
-  });
-
-  qs('#resetThemeBtn').addEventListener('click', () => {
-    resetThemeToDefault();
-    customInput.value = '';
-    panel.hidden = true;
-  });
-
-  document.addEventListener('click', () => {
-    panel.hidden = true;
-  });
 }
 
 function setActivePage(targetPageId) {
@@ -878,44 +600,25 @@ function initScriptsHub() {
   });
 
   qs('#saveScriptBtn').addEventListener('click', saveScriptFromEditor);
-  qs('#deleteScriptBtn').addEventListener('click', deleteSelectedScript);
 }
 
 function init() {
-  initThemeToggle();
   renderProducts(products);
   initScriptsHub();
 
-  const searchInput = qs('#searchInput');
-  const clearSearchBtn = qs('#clearSearchBtn');
-
-  const syncClearButton = () => {
-    clearSearchBtn.hidden = !searchInput.value.trim();
-  };
-
-  searchInput.addEventListener('input', () => {
-    syncClearButton();
+  qs('#searchInput').addEventListener('input', applyAllFilters);
+  qs('#clearSearchBtn').addEventListener('click', () => {
+    qs('#searchInput').value = '';
     applyAllFilters();
   });
-
-  clearSearchBtn.addEventListener('click', () => {
-    searchInput.value = '';
-    syncClearButton();
-    applyAllFilters();
-  });
-
-  syncClearButton();
 
   qsa('.filter-checkbox').forEach(cb => cb.addEventListener('change', applyAllFilters));
   qsa('.price-checkbox').forEach(cb => cb.addEventListener('change', applyAllFilters));
-
-  initThemeControls();
 
   qs('#resetFilters').addEventListener('click', () => {
     qsa('.filter-checkbox').forEach(cb => (cb.checked = false));
     qsa('.price-checkbox').forEach(cb => (cb.checked = false));
     qs('#searchInput').value = '';
-    qs('#clearSearchBtn').hidden = true;
     applyAllFilters();
   });
 
