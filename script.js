@@ -527,6 +527,20 @@ function createNewSavedScript() {
   qs('#savedScriptName').focus();
 }
 
+function setActivePage(targetPageId) {
+  qsa('.app-page').forEach(page => {
+    const active = page.id === targetPageId;
+    page.hidden = !active;
+    page.classList.toggle('is-active', active);
+  });
+
+  const onScriptsPage = targetPageId === 'scriptsPage';
+  qs('#sidebar').hidden = onScriptsPage;
+  qs('#searchInput').disabled = onScriptsPage;
+  qs('#clearSearchBtn').disabled = onScriptsPage;
+  qs('.page-layout').classList.toggle('scripts-mode', onScriptsPage);
+}
+
 function initScriptsHub() {
   renderTierList('tierPaidList', scriptsHubData.tierListPaid);
   renderTierList('tierFreeList', scriptsHubData.tierListFree);
@@ -553,15 +567,12 @@ function initScriptsHub() {
     btn.addEventListener('click', () => {
       const target = btn.getAttribute('data-page-target');
       qsa('.page-switch-btn').forEach(item => item.classList.toggle('is-active', item === btn));
-      qsa('.app-page').forEach(page => {
-        page.hidden = page.id !== target;
-      });
-      const onScriptsPage = target === 'scriptsPage';
-      qs('#sidebar').hidden = onScriptsPage;
-      qs('#searchInput').disabled = onScriptsPage;
-      qs('#clearSearchBtn').disabled = onScriptsPage;
+      setActivePage(target);
     });
   });
+
+  const activePageBtn = qs('.page-switch-btn.is-active');
+  setActivePage(activePageBtn?.getAttribute('data-page-target') || 'executorsPage');
 
   qs('#savedScriptsList').addEventListener('click', event => {
     const trigger = event.target.closest('[data-saved-script-id]');
