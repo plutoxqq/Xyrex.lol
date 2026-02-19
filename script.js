@@ -621,12 +621,12 @@ function setActivePage(targetPageId) {
     page.classList.toggle('is-active', active);
   });
 
-  const onScriptsPage = targetPageId === 'scriptsPage';
-  qs('#sidebar').hidden = onScriptsPage;
-  qs('#searchInput').disabled = onScriptsPage;
-  qs('#clearSearchBtn').disabled = onScriptsPage;
+  const onNonExecutorPage = targetPageId !== 'executorsPage';
+  qs('#sidebar').hidden = onNonExecutorPage;
+  qs('#searchInput').disabled = onNonExecutorPage;
+  qs('#clearSearchBtn').disabled = onNonExecutorPage;
   updateSearchClearButton();
-  qs('.page-layout').classList.toggle('scripts-mode', onScriptsPage);
+  qs('.page-layout').classList.toggle('scripts-mode', onNonExecutorPage);
 }
 
 function initScriptsHub() {
@@ -685,6 +685,14 @@ function init() {
   qs('#searchInput').addEventListener('input', () => {
     applyAllFilters();
     updateSearchClearButton();
+  });
+  qs('#searchInput').addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter') return;
+    if (qs('#searchInput').value === 'XYREX') {
+      event.preventDefault();
+      setActivePage('xyrexPage');
+      qsa('.page-switch-btn').forEach(item => item.classList.remove('is-active'));
+    }
   });
   qs('#clearSearchBtn').addEventListener('click', () => {
     qs('#searchInput').value = '';

@@ -143,6 +143,7 @@ a { color: inherit; text-decoration: none; }
    - visible: remove those lines and keep thin scrollbar styles below */
 .sidebar{ scrollbar-width: thin; scrollbar-color: rgba(178,188,255,0.45) transparent; }
 .sidebar::-webkit-scrollbar{ width: 8px; }
+.sidebar::-webkit-scrollbar-button{ display:none; width:0; height:0; }
 .sidebar::-webkit-scrollbar-thumb{ background: rgba(178,188,255,0.35); border-radius: 999px; }
 .sidebar::-webkit-scrollbar-track{ background: transparent; }
 
@@ -197,6 +198,7 @@ a { color: inherit; text-decoration: none; }
    set scrollbar-width:none and width:0 to hide completely. */
 .main-content{ scrollbar-width: thin; scrollbar-color: rgba(178,188,255,0.45) transparent; }
 .main-content::-webkit-scrollbar{ width: 8px; }
+.main-content::-webkit-scrollbar-button{ display:none; width:0; height:0; }
 .main-content::-webkit-scrollbar-thumb{ background: rgba(178,188,255,0.35); border-radius: 999px; }
 .main-content::-webkit-scrollbar-track{ background: transparent; }
 
@@ -343,6 +345,20 @@ a { color: inherit; text-decoration: none; }
 .platform-svg{
   width:14px;
   height:14px;
+}
+
+
+.product-name,
+.sunc,
+.legend-item,
+.legend-item span,
+.status-item strong,
+.status-item span,
+.card .summary,
+.card .price{
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
 }
 
 .platform-logo,
@@ -792,4 +808,22 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 720px){
   .page-switch{ width:100%; order:4; justify-content: flex-start; overflow:auto; }
   .subtabs{ padding:8px; }
+}
+
+
+.xyrex-page-content{
+  min-height: 60vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border: 1px solid rgba(178,188,255,0.2);
+  border-radius: 12px;
+  background: rgba(10,14,28,0.72);
+}
+
+.xyrex-page-content h2{
+  margin:0;
+  text-transform: lowercase;
+  color: var(--periwinkle-2);
+  letter-spacing: .6px;
 }
