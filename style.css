@@ -238,9 +238,9 @@ a { color: inherit; text-decoration: none; }
   font-weight: 800;
 }
 .legend-icon.verified{ background: rgba(93,211,158,.2); color: var(--accent-success); }
-.legend-icon.warning{ background: rgba(248,196,107,.2); color: var(--accent-warning); }
+.legend-icon.warning{ background: rgba(110, 174, 255, .2); color: #9fd6ff; }
 .legend-icon.trending,
-.legend-icon.sunc{ background: rgba(143,156,255,.2); color: var(--periwinkle-2); }
+.legend-icon.sunc{ background: rgba(122, 140, 255, .22); color: #c0ccff; }
 .legend-icon.internal{ background: rgba(104, 197, 255, .2); color: #8ed6ff; }
 .legend-icon.external{ background: rgba(255, 166, 118, .2); color: #ffb583; }
 
@@ -297,6 +297,18 @@ a { color: inherit; text-decoration: none; }
 .sunc{ background: rgba(143,156,255,.16); color: var(--periwinkle-2); border-radius: 999px; padding: 5px 9px; font-size: .78rem; font-weight: 700; }
 .tag-symbols{ display:flex; gap:6px; }
 .tag-symbols .legend-icon{ width: 18px; height: 18px; font-size: .7rem; }
+
+.icon-svg{
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+  display: block;
+}
+
+.legend-svg{
+  width: 12px;
+  height: 12px;
+}
 .features-row{ display: flex; gap: 10px; align-items: center; }
 .feature-icon{ width: 18px; height: 18px; opacity: .92; }
 .small{ font-size: .84rem; color: var(--muted); }
@@ -322,7 +334,15 @@ a { color: inherit; text-decoration: none; }
 .platform-logo{
   display:inline-flex;
   width:16px;
+  height:16px;
   justify-content:center;
+  align-items:center;
+  color:#b8c7ff;
+}
+
+.platform-svg{
+  width:14px;
+  height:14px;
 }
 
 .platform-logo,
